@@ -4,9 +4,9 @@ pipeline {
     PROJECT = "website-production-cisdi"
     APP_NAME = "gceme"
     FE_SVC_NAME = "${APP_NAME}-frontend"
-    CLUSTER = "jenkins-cd"
-    CLUSTER_ZONE = "us-east1-d"
-    IMAGE_TAG = "gcr.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
+    CLUSTER = "cisdi-jkta-cluster"
+    CLUSTER_ZONE = "asia-southeast2-a"
+    IMAGE_TAG = "asia.gcr.io/${PROJECT}/${APP_NAME}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
     JENKINS_CRED = "${PROJECT}"
   }
 
