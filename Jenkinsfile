@@ -6,7 +6,8 @@ pipeline {
     FE_SVC_NAME = "${APP_NAME}-frontend"
     CLUSTER = "cisdi-jkta-cluster"
     CLUSTER_ZONE = "asia-southeast2-a"
-    IMAGE_TAG = "asia.gcr.io/${PROJECT}/${APP_NAME}:${env.GIT_BRANCH}.${env.BUILD_NUMBER}"
+    GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse --short=10 HEAD").trim()
+    IMAGE_TAG = "asia.gcr.io/${PROJECT}/${APP_NAME}:${GIT_COMMIT}.${env.BUILD_NUMBER}"
     JENKINS_CRED = "${PROJECT}"
   }
 
