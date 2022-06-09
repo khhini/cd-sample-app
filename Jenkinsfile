@@ -4,7 +4,7 @@ pipeline {
         go 'go1.18'
     }
     environment {
-        GO114MODULE = 'off'
+        GO114MODULE = 'on'
         CGO_ENABLED = 0 
         GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
         GIN_MODE="release"
@@ -14,6 +14,7 @@ pipeline {
     stages {
         stage('Test Source Code'){
             steps {
+                sh 'go mod init'
                 sh 'go test'
             }
         }
