@@ -33,7 +33,7 @@ pipeline {
         }
         stage('Deploy'){
             steps {
-                ansiblePlaybook credentialsId: 'ansiblecd', disableHostKeyChecking: true, extras: '-e IMAGE_TAG=${GIT_COMMIT}', inventory: 'ansible/hosts', playbook: 'ansible/pb_deployment.yml'
+                ansiblePlaybook disableHostKeyChecking: true, extras: '-e IMAGE_TAG=${GIT_COMMIT}', inventory: 'ansible/hosts', playbook: 'ansible/pb_deployment.yml'
             }
         }
     }
