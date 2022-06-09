@@ -1,0 +1,11 @@
+version: "3.3"
+services:
+  sample-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-sample-app
+    container_name: go-sample-app
+    command: ["sh", "-c", "app -port=8080"]
+    ports:
+      - 8080:8080

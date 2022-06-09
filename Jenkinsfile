@@ -1,81 +1,40 @@
 pipeline {
-
-  environment {
-    PROJECT = "website-production-cisdi"
-    APP_NAME = "gceme"
-    FE_SVC_NAME = "${APP_NAME}-frontend"
-    CLUSTER = "cisdi-jkta-cluster"
-    CLUSTER_ZONE = "asia-southeast2-a"
-    GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse --short=10 HEAD").trim()
-    IMAGE_TAG = "asia.gcr.io/${PROJECT}/${APP_NAME}:${GIT_COMMIT}"
-    JENKINS_CRED = "${PROJECT}"
-  }
-
-  agent {
-    kubernetes {
-      label 'sample-app'
-      defaultContainer 'jnlp'
-      yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-labels:
-  component: ci
-spec:
-  # Use service account that can deploy to all namespaces
-  serviceAccountName: cd-jenkins
-  containers:
-  - name: golang
-    image: golang:1.10
-    command:
-    - cat
-    tty: true
-  - name: gcloud
-    image: gcr.io/cloud-builders/gcloud
-    command:
-    - cat
-    tty: true
-  - name: kubectl
-    image: gcr.io/cloud-builders/kubectl
-    command:
-    - cat
-    tty: true
-"""
-}
-  }
-  stages {
-    stage('Test') {
-      steps {
-        container('golang') {
-          sh """
-            ln -s `pwd` /go/src/sample-app
-            cd /go/src/sample-app
-            go test
-          """
-        }
-      }
+    agent any
+    tools {
+        go 'go1.18'
     }
-    stage('Build and push image with Container Builder') {
-      steps {
-        container('gcloud') {
-          sh "gcloud config get-value project"
-          sh "gcloud config get-value account"
-          sh "PYTHONUNBUFFERED=1 gcloud builds submit -t ${IMAGE_TAG} ."
-        }
-      }
+    environment {
+        GO114MODULE = 'on'
+        CGO_ENABLED = 0 
+        GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
+        GIN_MODE="release"
+        DOCKERHUB_CREDENTIALS=credentials('4fe5936d-45b3-47b0-8601-c90fed5029ee')
+        GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse --short=10 HEAD").trim()
     }
-    stage('Deploy Production') {
-      // Production branch
-      steps{
-        container('kubectl') {
-        // Change deployed image in canary to the one we just built
-          sh("sed -i.bak 's#corelab/gceme:1.0.0#${IMAGE_TAG}#' ./k8s/production/*.yaml")
-          step([$class: 'KubernetesEngineBuilder', namespace:'production', projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/services', credentialsId: env.JENKINS_CRED, verifyDeployments: false])
-          step([$class: 'KubernetesEngineBuilder', namespace:'production', projectId: env.PROJECT, clusterName: env.CLUSTER, zone: env.CLUSTER_ZONE, manifestPattern: 'k8s/production', credentialsId: env.JENKINS_CRED, verifyDeployments: true])
-          sh("echo http://`kubectl --namespace=production get service/${FE_SVC_NAME} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'` > ${FE_SVC_NAME}")
+    stages {
+        stage('Test Source Code'){
+            steps {
+                sh 'go mod tidy'
+                sh 'go test'
+            }
         }
-      }
+        stage('Build Docker Image'){
+            steps {
+                sh 'docker build -t khhini/go-sample-app:${GIT_COMMIT} .'
+            }
+        }
+        stage('Push Docker Image'){
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh "docker push khhini/go-sample-app:${GIT_COMMIT}"
+                sh "docker image rm -f khhini/go-sample-app:${GIT_COMMIT}"
+                sh "docker system prune -f"
+            }
+        }
+        // stage('Deploy'){
+        //     steps {
+        //         ansiblePlaybook credentialsId: 'ansiblecd', disableHostKeyChecking: true, extras: '-e IMAGE_TAG=${GIT_COMMIT}', inventory: 'ansible-deployment/hosts', playbook: 'ansible-deployment/pb_deployment.yml'
+        //     }
+        // }
     }
-    
-  }
 }
