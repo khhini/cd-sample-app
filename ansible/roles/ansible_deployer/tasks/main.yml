@@ -3,6 +3,7 @@
 - name: Removing "{{ production_server }}" from LoadBalancer Pools
   command: sed -i.bak 's/server prod-server-1 10.1.1.31:80/#server prod-server-1 10.1.1.31:80/g' /etc/haproxy/haproxy.cfg
   become: true
+  warn: false
   when: inventory_hostname == 'lb-server'
 
 - name: Restart haproxy service
@@ -15,8 +16,8 @@
 
 - name: Deploy app on "{{ production_server }}"
   docker_container:
-    name: go-recipes-api
-    image: "khhini/go-recipes-api:{{IMAGE_TAG}}"
+    name: go-sample-app
+    image: "khhini/go-sample-app:{{IMAGE_TAG}}"
     state: started
     recreate: yes
     restart_policy: always
