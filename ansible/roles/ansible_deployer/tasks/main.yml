@@ -29,7 +29,7 @@
 
 
 - name: Register "{{ production_server }}" to LoadBalancer Pools
-  command: sed -i.bak 's/server {{ production_server }}/#server {{ production_server }}/g' /etc/haproxy/haproxy.cfg
+  command: sed -i.bak 's/#server {{ production_server }}/server {{ production_server }}/g' /etc/haproxy/haproxy.cfg
   become: true
   when: inventory_hostname == 'lb-server'
 
