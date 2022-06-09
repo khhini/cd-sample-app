@@ -3,7 +3,6 @@
 - name: Removing "{{ production_server }}" from LoadBalancer Pools
   command: sed -i.bak 's/server prod-server-1 10.1.1.31:80/#server prod-server-1 10.1.1.31:80/g' /etc/haproxy/haproxy.cfg
   become: true
-  warn: false
   when: inventory_hostname == 'lb-server'
 
 - name: Restart haproxy service
