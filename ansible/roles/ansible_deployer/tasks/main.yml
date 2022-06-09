@@ -14,9 +14,9 @@
   when: inventory_hostname == 'lb-server'
 
 - name: Deploy app on "{{ production_server }}"
-  docker_contaner:
+  docker_container:
     name: go-sample-app
-    image: "khhini/go-sample-app:{{IMAGE_TAG}}"
+    image: "khhini/go-sample-app:{{ IMAGE_TAG }}"
     state: started
     recreate: yes
     command: ["sh", "-c", "app -port=8080"]
