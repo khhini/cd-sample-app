@@ -31,10 +31,10 @@ pipeline {
                 sh "docker system prune -f"
             }
         }
-        // stage('Deploy'){
-        //     steps {
-        //         ansiblePlaybook credentialsId: 'ansiblecd', disableHostKeyChecking: true, extras: '-e IMAGE_TAG=${GIT_COMMIT}', inventory: 'ansible-deployment/hosts', playbook: 'ansible-deployment/pb_deployment.yml'
-        //     }
-        // }
+        stage('Deploy'){
+            steps {
+                ansiblePlaybook credentialsId: 'ansiblecd', disableHostKeyChecking: true, extras: '-e IMAGE_TAG=${GIT_COMMIT}', inventory: 'ansible/hosts', playbook: 'ansible/pb_deployment.yml'
+            }
+        }
     }
 }
