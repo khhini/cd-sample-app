@@ -24,7 +24,7 @@
     published_ports:
       - 80:8080
   register: prod_deployment
-  when: inventory_hostname == production_server and disabled_prod is succeeded
+  when: inventory_hostname == production_server and disable_prod is succeeded
 
 
 
