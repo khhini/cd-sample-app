@@ -14,7 +14,7 @@ pipeline {
     stages {
         stage('Test Source Code'){
             steps {
-                sh 'go mod tidy'
+                sh 'go mod vendor'
                 sh 'go test'
             }
         }
