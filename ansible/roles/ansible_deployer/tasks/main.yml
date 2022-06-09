@@ -15,16 +15,18 @@
 
 - name: Deploy app on "{{ production_server }}"
   docker_container:
-    name: go-sample-app
-    image: "khhini/go-sample-app:{{ IMAGE_TAG }}"
+    name: go-recipes-api
+    image: "khhini/go-recipes-api:{{IMAGE_TAG}}"
     state: started
     recreate: yes
+    restart_policy: always
     command: ["sh", "-c", "app -port=8080"]
-    retart_policy: always
     published_ports:
       - 80:8080
   register: prod_deployment
   when: inventory_hostname == production_server and disabled_prod is succeeded
+
+
 
 - name: Register "{{ production_server }}" to LoadBalancer Pools
   command: sed -i.bak 's/server {{ production_server }}/#server {{ production_server }}/g' /etc/haproxy/haproxy.cfg
