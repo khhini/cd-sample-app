@@ -1,0 +1,39 @@
+---
+# tasks file for ansible_deployer
+- name: Removing "{{ production_server }}" from LoadBalancer Pools
+  command: sed -i.bak 's/server prod-server-1 10.1.1.31:80/#server prod-server-1 10.1.1.31:80/g' /etc/haproxy/haproxy.cfg
+  become: true
+  when: inventory_hostname == 'lb-server'
+
+- name: Restart haproxy service
+  service:
+    name: haproxy
+    state: restarted
+  become: true
+  register: disable_prod
+  when: inventory_hostname == 'lb-server'
+
+- name: Deploy app on "{{ production_server }}"
+  docker_contaner:
+    name: go-sample-app
+    image: "khhini/go-sample-app:{{IMAGE_TAG}}"
+    state: started
+    recreate: yes
+    command: ["sh", "-c", "app -port=8080"]
+    retart_policy: always
+    published_ports:
+      - 80:8080
+  register: prod_deployment
+  when: inventory_hostname == production_server and disabled_prod is succeeded
+
+- name: Register "{{ production_server }}" to LoadBalancer Pools
+  command: sed -i.bak 's/server {{ production_server }}/#server {{ production_server }}/g' /etc/haproxy/haproxy.cfg
+  become: true
+  when: inventory_hostname == 'lb-server'
+
+- name: Restart haproxy service
+  service:
+    name: haproxy
+    state: restarted
+  become: true
+  when: inventory_hostname == 'lb-server'

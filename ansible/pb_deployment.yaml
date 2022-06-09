@@ -1,0 +1,11 @@
+- name: Deploy to production_server
+  hosts: all
+  gather_facts: no
+  force_handlers: true
+  tasks:
+    - name: Deploy App to production_server
+      include_role:
+        name: ansible_deployer
+      loop: "{{ query('inventory_hostnames', 'production', wantlist=True) }}"
+      loop_control:
+        loop_var: production_server
