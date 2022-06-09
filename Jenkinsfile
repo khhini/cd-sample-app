@@ -8,7 +8,7 @@ pipeline {
         CGO_ENABLED = 0 
         GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
         GIN_MODE="release"
-        DOCKERHUB_CREDENTIALS=credentials('4fe5936d-45b3-47b0-8601-c90fed5029ee')
+        DOCKERHUB_CREDENTIALS=credentials('dockerhub')
         GIT_COMMIT = sh(returnStdout: true, script: "git rev-parse --short=10 HEAD").trim()
     }
     stages {
