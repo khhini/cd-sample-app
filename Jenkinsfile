@@ -4,6 +4,7 @@ pipeline {
         go 'go1.18'
     }
     environment {
+        GO114MODULE = 'off'
         CGO_ENABLED = 0 
         GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
         GIN_MODE="release"
