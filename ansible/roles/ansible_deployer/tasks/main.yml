@@ -15,7 +15,7 @@
 
 - name: Deploy backend app on "{{ production_server }}"
   docker_container:
-    name: go-sample-app
+    name: go-sample-be-app
     image: "khhini/go-sample-app:{{IMAGE_TAG}}"
     state: started
     recreate: yes
@@ -28,7 +28,7 @@
 
 - name: Deploy frontend app on "{{ production_server }}"
   docker_container:
-    name: go-sample-app
+    name: go-sample-fe-app
     image: "khhini/go-sample-app:{{IMAGE_TAG}}"
     state: started
     recreate: yes
