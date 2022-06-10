@@ -13,7 +13,7 @@
   register: disable_prod
   when: inventory_hostname == 'lb-server'
 
-- name: Deploy app on "{{ production_server }}"
+- name: Deploy backend app on "{{ production_server }}"
   docker_container:
     name: go-sample-app
     image: "khhini/go-sample-app:{{IMAGE_TAG}}"
@@ -22,11 +22,22 @@
     restart_policy: always
     command: ["sh", "-c", "app -port=8080"]
     published_ports:
-      - 80:8080
+      - 8081:8080
   register: prod_deployment
   when: inventory_hostname == production_server and disable_prod is succeeded
 
-
+- name: Deploy frontend app on "{{ production_server }}"
+  docker_container:
+    name: go-sample-app
+    image: "khhini/go-sample-app:{{IMAGE_TAG}}"
+    state: started
+    recreate: yes
+    restart_policy: always
+    command: ["sh", "-c", "app -frontend=true -backend-service=http://lb-server:8081 -port=80"]
+    published_ports:
+      - 80:80
+  register: prod_deployment
+  when: inventory_hostname == production_server and disable_prod is succeeded
 
 - name: Register "{{ production_server }}" to LoadBalancer Pools
   command: sed -i.bak 's/#server {{ production_server }}/server {{ production_server }}/g' /etc/haproxy/haproxy.cfg
