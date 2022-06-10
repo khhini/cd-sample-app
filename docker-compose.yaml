@@ -1,11 +1,20 @@
 version: "3.3"
 services:
-  sample-be-app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
     image: go-sample-app
-    container_name: go-sample-app
+    container_name: go-sample-be-app
     command: ["sh", "-c", "app -port=8080"]
     ports:
       - 8080:8080
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: go-sample-app
+    container_name: go-sample-fe-app
+    command: ["sh", "-c", "app -frontend=true -backend-service=http://backend:8080 -port=80"]
+    ports:
+      - 8081:80
