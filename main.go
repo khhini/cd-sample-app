@@ -81,9 +81,6 @@ func backendMode(port int) {
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-	http.HandleFunc("/hallo", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hallo Dunia")
-	})
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))
 }
 
