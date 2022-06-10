@@ -32,25 +32,6 @@
   register: prod_hc
   when: inventory_hostname == 'lb-server' and prod_deployment is succeeded
 
-- name: Deploy frontend app on "{{ production_server }}"
-  docker_container:
-    name: go-sample-fe-app
-    image: "khhini/go-sample-app:{{IMAGE_TAG}}"
-    state: started
-    recreate: yes
-    restart_policy: always
-    command: ["sh", "-c", "app -frontend=true -backend-service=http://10.1.1.10:8081 -port=80"]
-    published_ports:
-      - 80:80
-  register: prod_deployment
-  when: inventory_hostname == production_server and disable_prod is succeeded
-
-- name: Checking frontend "{{production_server}}" ready to handle request
-  uri:
-    url: http://{{production_server}}/healthz
-  register: prod_hc
-  when: inventory_hostname == 'lb-server' and prod_deployment is succeeded
-
 - name: Register "{{ production_server }}" to LoadBalancer Pools
   command: sed -i.bak 's/#server {{ production_server }}/server {{ production_server }}/g' /etc/haproxy/haproxy.cfg
   become: true
